@@ -1,0 +1,13 @@
+{
+    "name": "cunningsoft/mcmanager",
+    "description": "Simple memcache wrapper",
+    "authors": [
+        {
+            "name": "Daniel Mecke",
+            "email": "daniel.mecke@cunningsoft.de"
+        }
+    ],
+    "require": {
+
+    }
+}
