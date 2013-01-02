@@ -3,18 +3,33 @@ class McManager
 {
     private $memcache = null;
 
-    private function __construct()
+    private $host = 'localhost';
+
+    private $port = 11211;
+
+    public function __construct()
     {
-        if (class_exists('Memcache'))
-        {
-            $this->memcache = new Memcache();
-            $this->memcache->connect(Core_Controller::getContainer()->getParameter('mc_host'), Core_Controller::getContainer()->getParameter('mc_port'));
-        }
+        $this->memcache = new Memcache();
     }
 
     public function __destruct()
     {
         if (isset($this->memcache)) $this->memcache->close();
+    }
+
+    public function setHost($host)
+    {
+        $this->host = $host;
+    }
+
+    public function setPort($port)
+    {
+        $this->port = $port;
+    }
+
+    public function connect()
+    {
+        $this->memcache->connect($this->host, $this->port);
     }
 
     static public function getInstance()
@@ -23,6 +38,9 @@ class McManager
         if ($instance == null)
         {
             $instance = new McManager();
+            $instance->setHost(Core_Controller::getContainer()->getParameter('mc_host'));
+            $instance->setPort(Core_Controller::getContainer()->getParameter('mc_port'));
+            $instance->connect();
 
         }
         return $instance;
