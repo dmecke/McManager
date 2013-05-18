@@ -7,6 +7,11 @@ class McManager
 
     private $port = 11211;
 
+    /**
+     * @var bool
+     */
+    private $isConnected = false;
+
     public function __construct()
     {
         $this->memcache = new Memcache();
@@ -30,6 +35,14 @@ class McManager
     public function connect()
     {
         $this->memcache->connect($this->host, $this->port);
+        $this->isConnected = true;
+    }
+
+    private function ensureConnected()
+    {
+        if (!$this->isConnected) {
+            $this->connect();
+        }
     }
 
     static public function getInstance()
@@ -40,7 +53,6 @@ class McManager
             $instance = new McManager();
             $instance->setHost(Core_Controller::getContainer()->getParameter('mc_host'));
             $instance->setPort(Core_Controller::getContainer()->getParameter('mc_port'));
-            $instance->connect();
 
         }
         return $instance;
@@ -48,6 +60,8 @@ class McManager
 
     public function set($key, $value, $expire)
     {
+        $this->ensureConnected();
+
         if (isset($this->memcache)) {
             return $this->memcache->set(Core_Controller::getContainer()->getParameter('projectid') . '_' . $key, $value, false, $expire);
         } else {
@@ -57,6 +71,8 @@ class McManager
 
     public function get($key)
     {
+        $this->ensureConnected();
+
         if (isset($this->memcache)) {
             return $this->memcache->get(Core_Controller::getContainer()->getParameter('projectid') . '_' . $key);
         } else {
@@ -66,6 +82,8 @@ class McManager
 
     public function delete($key)
     {
+        $this->ensureConnected();
+
         if (isset($this->memcache)) {
             return $this->memcache->delete(Core_Controller::getContainer()->getParameter('projectid') . '_' . $key);
         } else {
@@ -83,6 +101,8 @@ class McManager
      */
     public function getArray($key, $offset = 0, $limit = null)
     {
+        $this->ensureConnected();
+
         $array = array();
         $data = $this->get($key);
         for ($i = $offset; isset($data[$i]) && (is_null($limit) || $i < $offset + $limit); $i++)
@@ -94,6 +114,8 @@ class McManager
 
     public function getServerStatus($host, $port = 11211)
     {
+        $this->ensureConnected();
+
         if (isset($this->memcache))
         {
             return $this->memcache->getServerStatus($host, $port);
@@ -106,6 +128,8 @@ class McManager
 
     private function getStats()
     {
+        $this->ensureConnected();
+
         if (isset($this->memcache))
         {
             return $this->memcache->getStats();
@@ -158,6 +182,8 @@ class McManager
 
     public function getVersion()
     {
+        $this->ensureConnected();
+
         if (isset($this->memcache))
         {
             return $this->memcache->getVersion();
