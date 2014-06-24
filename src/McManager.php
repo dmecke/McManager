@@ -19,7 +19,10 @@ class McManager
 
     public function __destruct()
     {
-        if (isset($this->memcache)) $this->memcache->close();
+        if ($this->isConnected) {
+            $this->isConnected = false;
+            $this->memcache->close();
+        }
     }
 
     public function setHost($host)
